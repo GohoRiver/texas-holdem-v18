@@ -2769,3 +2769,125 @@ body.is-desktop .seat.reveal .mini-card.face .s{
   right: 5px !important;
   line-height: 1 !important;
 }
+
+/* ====================================================================
+   ★ 摊牌状态：座位加宽 + 牌放大 + 数字大 + 花色小
+   （追加到 CSS 最末尾，覆盖前面所有相关规则）
+   ==================================================================== */
+
+/* ---- 手机竖屏 ---- */
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal{
+  width: 78px !important;
+  padding: 4px 4px !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card,
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card.face{
+  width: 32px !important;
+  height: 44px !important;
+  border-radius: 5px !important;
+  padding: 0 !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card.face .v{
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  top: 3px !important;
+  left: 3px !important;
+  right: auto !important;
+  bottom: auto !important;
+  line-height: 1 !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card.face .s{
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  bottom: 3px !important;
+  right: 3px !important;
+  top: auto !important;
+  left: auto !important;
+  line-height: 1 !important;
+  opacity: 0.85 !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .seat-cards{
+  gap: 3px !important;
+}
+
+/* ---- 手机横屏 ---- */
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal{
+  width: 78px !important;
+  padding: 4px 4px !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card,
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card.face{
+  width: 32px !important;
+  height: 44px !important;
+  border-radius: 5px !important;
+  padding: 0 !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card.face .v{
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  top: 3px !important;
+  left: 3px !important;
+  right: auto !important;
+  bottom: auto !important;
+  line-height: 1 !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card.face .s{
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  bottom: 3px !important;
+  right: 3px !important;
+  top: auto !important;
+  left: auto !important;
+  line-height: 1 !important;
+  opacity: 0.85 !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .seat-cards{
+  gap: 3px !important;
+}
+
+/* ---- 桌面端 ---- */
+body.is-desktop .seat.reveal{
+  width: 150px !important;
+}
+body.is-desktop .seat.reveal .mini-card,
+body.is-desktop .seat.reveal .mini-card.face{
+  width: 46px !important;
+  height: 64px !important;
+  border-radius: 7px !important;
+  padding: 0 !important;
+}
+body.is-desktop .seat.reveal .mini-card.face .v{
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  top: 5px !important;
+  left: 6px !important;
+  right: auto !important;
+  bottom: auto !important;
+  line-height: 1 !important;
+}
+body.is-desktop .seat.reveal .mini-card.face .s{
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  bottom: 5px !important;
+  right: 6px !important;
+  top: auto !important;
+  left: auto !important;
+  line-height: 1 !important;
+  opacity: 0.85 !important;
+}
+body.is-desktop .seat.reveal .seat-cards{
+  gap: 4px !important;
+}
+
+/* ---- 关键：让 mini-card 使用 absolute 布局，确保数字和花色不互相压 ---- */
+body .mini-card.face{
+  position: relative !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+body .mini-card.face .v{
+  position: absolute !important;
+}
+body .mini-card.face .s{
+  position: absolute !important;
+}
