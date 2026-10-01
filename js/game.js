@@ -1970,7 +1970,7 @@ function computePortraitSeats(n){
   const pos = [{ x:50, y:86 }];
   if(n === 1) return pos;
   const others = n - 1;
-  const cx = 50, cy = 40, rx = 38, ry = 30;
+  const cx = 50, cy = 40, rx = 42, ry = 34;   /* ← 半径加大，往外圈推 */
   for(let i = 0; i < others; i++){
     const tt = others === 1 ? 0.5 : (i / (others - 1));
     const angle = Math.PI + tt * Math.PI;
