@@ -75,7 +75,9 @@ window.PokerAudio = (function(){
       noise(0.03, 0.03, 0, 1800);
     },
     check: function(){
-      tone(720, 0.05, 'sine', 0.06, 0);
+      /* ★ 敲桌子：短噪声 + 低频拍击 */
+      noise(0.035, 0.09, 0, 500);
+      noise(0.02, 0.05, 0.04, 900);
     },
     raise: function(){
       tone(523, 0.06, 'triangle', 0.09, 0);
@@ -127,6 +129,15 @@ window.PokerAudio = (function(){
         tone(f, 0.11, 'triangle', 0.1, i * 0.055);
       });
       noise(0.18, 0.05, 0, 900);
+      },
+    /* ★ 3-bet / 4-bet 及以上：急促高音 */
+    raiseBig: function(){
+      tone(880,  0.035, 'square', 0.07,  0);
+      tone(1046, 0.035, 'square', 0.07,  0.045);
+      tone(1318, 0.035, 'square', 0.075, 0.09);
+      tone(1568, 0.035, 'square', 0.08,  0.135);
+      tone(1318, 0.05,  'square', 0.08,  0.18);
+      noise(0.06, 0.04, 0.10, 3200);
     }
   };
 
