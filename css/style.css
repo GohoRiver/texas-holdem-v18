@@ -2706,3 +2706,66 @@ body .mini-card.face .s{
   position: absolute !important;
   text-align: right !important;
 }
+
+/* ====================================================================
+   ★ 摊牌时小牌放大（追加到最末尾，覆盖前面的尺寸规则）
+   ==================================================================== */
+
+/* ---- 手机竖屏：摊牌放大 ---- */
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card{
+  width: 26px !important;
+  height: 36px !important;
+  border-radius: 4px !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card.face .v{
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  top: 2px !important;
+  left: 3px !important;
+  line-height: 1 !important;
+}
+body.is-mobile.orientation-portrait #gameScreen .seat.reveal .mini-card.face .s{
+  font-size: 16px !important;
+  bottom: 1px !important;
+  right: 3px !important;
+  line-height: 1 !important;
+}
+
+/* ---- 手机横屏：摊牌放大 ---- */
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card{
+  width: 24px !important;
+  height: 34px !important;
+  border-radius: 4px !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card.face .v{
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  top: 2px !important;
+  left: 2.5px !important;
+  line-height: 1 !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat.reveal .mini-card.face .s{
+  font-size: 15px !important;
+  bottom: 1px !important;
+  right: 2.5px !important;
+  line-height: 1 !important;
+}
+
+/* ---- 桌面端：确认尺寸（避免被后面规则覆盖） ---- */
+body.is-desktop .seat.reveal .mini-card{
+  width: 42px !important;
+  height: 60px !important;
+  border-radius: 6px !important;
+}
+body.is-desktop .seat.reveal .mini-card.face .v{
+  font-size: 18px !important;
+  top: 4px !important;
+  left: 5px !important;
+  line-height: 1 !important;
+}
+body.is-desktop .seat.reveal .mini-card.face .s{
+  font-size: 26px !important;
+  bottom: 3px !important;
+  right: 5px !important;
+  line-height: 1 !important;
+}
