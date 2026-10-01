@@ -2482,3 +2482,115 @@ body.is-mobile.orientation-portrait .seat .chip-label{
 }
 
 body .seat .chip-stack-wrap.empty{ display: none !important; }
+
+/* ====================================================================
+   ★★★ 最终回滚：筹码堆回到座位内部（紧凑显示，不再浮出外侧）
+   此段必须放在 CSS 文件最末尾，覆盖前面所有"浮出"规则
+   ==================================================================== */
+
+/* 1. 取消所有浮出定位，回到座位内部 */
+body.is-desktop .seat .chip-stack-wrap,
+body.is-desktop .seat.me .chip-stack-wrap,
+body.is-desktop .seat[data-chip-side] .chip-stack-wrap,
+
+body.is-mobile .seat .chip-stack-wrap,
+body.is-mobile .seat.me .chip-stack-wrap,
+body.is-mobile.orientation-portrait .seat .chip-stack-wrap,
+body.is-mobile.orientation-portrait .seat.me .chip-stack-wrap,
+body.is-mobile.orientation-portrait .seat[data-chip-side] .chip-stack-wrap,
+
+body.is-mobile.orientation-landscape #gameScreen .seat .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat.me .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat[data-chip-side] .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat[data-chip-side="top"] .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat[data-chip-side="bottom"] .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat[data-chip-side="left"] .chip-stack-wrap,
+body.is-mobile.orientation-landscape #gameScreen .seat[data-chip-side="right"] .chip-stack-wrap{
+  position: static !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+  gap: 1px !important;
+  margin: 2px auto 1px auto !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: auto !important;
+  white-space: normal !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+/* 2. 桌面端筹码片尺寸（紧凑） */
+body.is-desktop .seat .chip-column{
+  width: 12px !important;
+}
+body.is-desktop .seat .chip-piece{
+  width: 12px !important;
+  height: 3px !important;
+  margin-top: -1px !important;
+}
+body.is-desktop .seat .chip-label{
+  font-size: 7px !important;
+  bottom: -9px !important;
+}
+
+/* 3. 手机横屏筹码片尺寸（更紧凑，7 人局也不挤） */
+body.is-mobile.orientation-landscape #gameScreen .seat .chip-column{
+  width: 7px !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat .chip-piece{
+  width: 7px !important;
+  height: 2px !important;
+  margin-top: -0.5px !important;
+  border-width: 0.5px !important;
+  border-radius: 50% !important;
+}
+body.is-mobile.orientation-landscape #gameScreen .seat .chip-label{
+  font-size: 5px !important;
+  bottom: -6px !important;
+  color: #fbbf24 !important;
+  letter-spacing: -0.3px !important;
+  text-shadow: 0 0 2px #000 !important;
+}
+
+/* 4. 手机竖屏筹码片尺寸（更紧凑） */
+body.is-mobile.orientation-portrait .seat .chip-column{
+  width: 8px !important;
+}
+body.is-mobile.orientation-portrait .seat .chip-piece{
+  width: 8px !important;
+  height: 2px !important;
+  margin-top: -0.5px !important;
+  border-radius: 50% !important;
+}
+body.is-mobile.orientation-portrait .seat .chip-label{
+  font-size: 5px !important;
+  bottom: -6px !important;
+}
+
+/* 5. 座位高度不再被筹码堆撑高（给筹码堆一个固定的小高度） */
+body.is-mobile.orientation-landscape #gameScreen .seat .chip-stack-wrap{
+  max-height: 18px !important;
+}
+body.is-mobile.orientation-portrait .seat .chip-stack-wrap{
+  max-height: 20px !important;
+}
+
+/* 6. 空筹码堆隐藏 */
+body .seat .chip-stack-wrap.empty{
+  display: none !important;
+}
