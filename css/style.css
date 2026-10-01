@@ -1779,6 +1779,8 @@ body.is-mobile.orientation-portrait #gameScreen .game-layout{
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* ★ 加这一行 ↓ */
+  align-items: stretch;
   min-height: 0;
   overflow: hidden;
   padding: 0;
@@ -2508,16 +2510,15 @@ body .seat .chip-stack-wrap.empty{
 
 /* ===== 竖屏布局微调：牌桌略大 / 操作栏略小 ===== */
 body.is-mobile.orientation-portrait #gameScreen .table-area{
-  flex: 1.15 1 0;
-  padding: 24px 6px 8px;
+  flex: 1 1 auto;          /* 只填剩余空间，不抢高 */
 }
 body.is-mobile.orientation-portrait #gameScreen .side-right{
-  flex: 1 1 0;
-  max-height: 48vh;
+  flex: 0 0 auto;          /* 固定高度，不跟牌桌抢 */
+  max-height: 42vh;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
 }
 body.is-mobile.orientation-portrait #gameScreen .poker-table{
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 4 / 5;     /* 牌桌稍瘦，给座位留外圈 */
   height: auto;
   max-height: 100%;
 }
