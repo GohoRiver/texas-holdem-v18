@@ -1967,15 +1967,22 @@ function computeLandscapeSeats(n){
   return pos;
 }
 function computePortraitSeats(n){
+  /* 自己固定在底部正中 */
   const pos = [{ x:50, y:86 }];
   if(n === 1) return pos;
   const others = n - 1;
-  const cx = 50, cy = 40, rx = 42, ry = 34;   /* ← 半径加大，往外圈推 */
+
+  /* 整圆分布：自己占 90°（正下方），其他人从 90°+step 开始顺时针排一圈 */
+  const cx = 50, cy = 48;
+  const rx = 42, ry = 36;
+  const myAngle = 90;            /* 屏幕坐标：0°右，90°下，180°左，270°上 */
+  const step = 360 / n;
+
   for(let i = 0; i < others; i++){
-    const tt = others === 1 ? 0.5 : (i / (others - 1));
-    const angle = Math.PI + tt * Math.PI;
-    const x = cx + rx * Math.cos(angle);
-    const y = cy + ry * Math.sin(angle);
+    const angle = myAngle + step * (i + 1);
+    const rad = angle * Math.PI / 180;
+    const x = cx + rx * Math.cos(rad);
+    const y = cy + ry * Math.sin(rad);
     pos.push({ x: x, y: y });
   }
   return pos;
@@ -2318,7 +2325,14 @@ function advanceStageAi(){
 
 /* ★ 根据当前 raiseCount 生成下注/加注/3-bet/4-bet 文案 */
 function getBetLabel(raiseCount, target){
+  /* raiseCount 追踪本轮的下注/加注次序：
+     preflop 开场 = 1（大盲算第一次"下注"）
+     第一个加注 = 2 → 显示"加注"，不叫 2-bet
+     第二个加注 = 3 → 3-bet
+     第三个加注 = 4 → 4-bet
+     ... 以此类推 */
   if(raiseCount <= 1) return (isEn() ? 'Bet ' : '下注 ') + fmtNum(target);
+  if(raiseCount === 2) return (isEn() ? 'Raise to ' : '加注到 ') + fmtNum(target);
   return raiseCount + '-bet ' + fmtNum(target);
 }
 
