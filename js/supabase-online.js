@@ -76,10 +76,11 @@ window.PokerOnline = (function(){
   function announceRoom(){
     if(!lobbyChannel || !hostRoomInfo) return;
     /* 统计已上座人数 */
-    let seatedCount = 0;
-    Object.keys(roomPlayers).forEach(function(pid){
-      if(roomPlayers[pid].role === 'seated') seatedCount++;
-    });
+let seatedCount = 0;
+Object.keys(roomPlayers).forEach(function(pid){
+  const p = roomPlayers[pid];
+  if(p.role === 'seated' || p.role == null) seatedCount++;
+});
     hostRoomInfo.count = seatedCount;
     hostRoomInfo.totalPlayers = Object.keys(roomPlayers).length;
     hostRoomInfo.isPrivate = roomInfo.isPrivate;
@@ -153,25 +154,33 @@ window.PokerOnline = (function(){
     channel = supabase.channel('room-' + roomId, { config: { broadcast: { self: true } } });
 
         channel.on('broadcast', { event: 'player_join' }, (payload) => {
-      if(!isHost) return;
-      const p = payload.payload;
-      if(!roomPlayers[p.peerId]){
-        if(Object.keys(roomPlayers).length >= MAX_SEATS){
-          try { channel.send({ type:'broadcast', event:'room_full', payload:{ peerId: p.peerId } }); } catch(e){}
-          return;
-        }
-        roomPlayers[p.peerId] = { name: p.name, ready: false, seat: nextFreeSeat(), isSelf: false };
-        broadcastPlayerList(); notifyPlayers(); announceRoom();
-        /* ★ 通知 game.js 有玩家加入（即使游戏已开始） */
-        if(onMessage) onMessage({
-          type: 'player_join',
-          peerId: p.peerId,
-          name: p.name,
-          seat: roomPlayers[p.peerId].seat
-        });
-      } else { broadcastPlayerList(); }
+  if(!isHost) return;
+  const p = payload.payload;
+  if(!p || !p.peerId) return;
+  if(!roomPlayers[p.peerId]){
+    if(Object.keys(roomPlayers).length >= MAX_SEATS){
+      try { channel.send({ type:'broadcast', event:'room_full', payload:{ peerId: p.peerId } }); } catch(e){}
+      return;
+    }
+    roomPlayers[p.peerId] = {
+      name: p.name || 'Player',
+      ready: false,
+      seat: nextFreeSeat(),
+      role: 'seated',          // ★ 补
+      wantsSeat: false,        // ★ 补
+      isSelf: false
+    };
+    broadcastPlayerList(); notifyPlayers(); announceRoom();
+    if(onMessage) onMessage({
+      type: 'player_join',
+      peerId: p.peerId,
+      name: p.name,
+      seat: roomPlayers[p.peerId].seat
     });
-
+  } else {
+    broadcastPlayerList();
+  }
+});
     /* ★ 玩家请求上座 */
     channel.on('broadcast', { event: 'request_seat' }, (payload) => {
       if(!isHost) return;
@@ -263,10 +272,13 @@ window.PokerOnline = (function(){
       }
     });
 
-    channel.on('broadcast', { event: 'sync_request' }, (payload) => {
-      if(!isHost) return;
-      if(onMessage) onMessage({ type: 'sync_request', peerId: payload.payload.peerId });
-    });
+channel.on('broadcast', { event: 'sync_request' }, (payload) => {
+  if(!isHost) return;
+  broadcastPlayerList();       // ★ 先重发玩家列表
+  notifyPlayers();             // ★ 也通知本地 UI
+  announceRoom();              // ★ 顺便更新大厅计数
+  if(onMessage) onMessage({ type: 'sync_request', peerId: payload.payload.peerId });
+});
 
     channel.on('broadcast', { event: 'player_action' }, (payload) => {
       if(!isHost) return;
@@ -304,8 +316,11 @@ window.PokerOnline = (function(){
           broadcastPlayerList();
           notifyPlayers();
           announceRoom();
-          if(hostAnnounceTimer) clearInterval(hostAnnounceTimer);
-          hostAnnounceTimer = setInterval(announceRoom, ANNOUNCE_MS);
+if(hostAnnounceTimer) clearInterval(hostAnnounceTimer);
+hostAnnounceTimer = setInterval(function(){
+  announceRoom();
+  broadcastPlayerList();       // ★ 每 2 秒兜底一次
+}, ANNOUNCE_MS);
           resolve();
         }
       });
@@ -479,24 +494,44 @@ window.PokerOnline = (function(){
   }
 
   function leaveRoom(){
-    if(heartbeatTimer){ clearInterval(heartbeatTimer); heartbeatTimer = null; }
-    const wasHost = isHost;
-    if(wasHost) stopAnnounce();
+  if(heartbeatTimer){ clearInterval(heartbeatTimer); heartbeatTimer = null; }
+  const wasHost = isHost;
+  const leavingRoomId = currentRoomId;   // ★ 记下来，后面清本地
 
-    const ch = channel; channel = null;
-    if(ch){
-      let sent;
-      try {
-        if(wasHost) sent = ch.send({ type: 'broadcast', event: 'host_left', payload: { peerId: myId } });
-        else sent = ch.send({ type: 'broadcast', event: 'leave', payload: { peerId: myId } });
-      } catch(e){ sent = null; }
-      const cleanup = function(){ try { supabase.removeChannel(ch); } catch(e){} };
-      if(sent && typeof sent.then === 'function'){
-        Promise.resolve(sent).then(function(){ setTimeout(cleanup, 400); }).catch(function(){ setTimeout(cleanup, 400); });
-      } else { setTimeout(cleanup, 600); }
-    }
-    currentRoomId = null; isHost = false; roomPlayers = {}; hostPeerId = null;
+  // ★ 先广播 room_closed（房主）
+  if(wasHost && lobbyChannel && hostRoomInfo){
+    try {
+      lobbyChannel.send({
+        type: 'broadcast',
+        event: 'room_closed',
+        payload: { roomId: hostRoomInfo.roomId }
+      });
+    } catch(e){}
   }
+  if(hostAnnounceTimer){ clearInterval(hostAnnounceTimer); hostAnnounceTimer = null; }
+  hostRoomInfo = null;
+
+  const ch = channel; channel = null;
+  if(ch){
+    let sent;
+    try {
+      if(wasHost) sent = ch.send({ type: 'broadcast', event: 'host_left', payload: { peerId: myId } });
+      else sent = ch.send({ type: 'broadcast', event: 'leave', payload: { peerId: myId } });
+    } catch(e){ sent = null; }
+    const cleanup = function(){ try { supabase.removeChannel(ch); } catch(e){} };
+    if(sent && typeof sent.then === 'function'){
+      Promise.resolve(sent).then(function(){ setTimeout(cleanup, 400); }).catch(function(){ setTimeout(cleanup, 400); });
+    } else { setTimeout(cleanup, 600); }
+  }
+
+  // ★ 本地也清掉自己房主的那条记录
+  if(leavingRoomId && lobbyRooms[leavingRoomId]){
+    delete lobbyRooms[leavingRoomId];
+    if(onRoomsUpdate) onRoomsUpdate(getKnownRooms());
+  }
+
+  currentRoomId = null; isHost = false; roomPlayers = {}; hostPeerId = null;
+}
 
   return {
     init, createRoom, joinRoom, leaveRoom, send,
