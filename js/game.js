@@ -493,7 +493,8 @@ function ensureWaitingBar(){
 function showWaitingBar(){
   const bar = ensureWaitingBar();
   if(!bar) return;
-  const code = (window.PokerOnline && PokerOnline.getRoomId) ? PokerOnline.getRoomId() : '';
+  const code = G.online.roomId
+    || ((window.PokerOnline && PokerOnline.getRoomId) ? PokerOnline.getRoomId() : '');
   bar.innerHTML =
     '<div class="waiting-room">' + (isEn() ? 'Room ' : '房间号 ') + '<b>' + (code || '—') + '</b></div>' +
     '<div class="waiting-info" id="waitingInfo">0 / 7</div>' +
@@ -1872,6 +1873,7 @@ function handleOnlineMessage(msg){
     case 'player_leave': handlePlayerLeave(msg.peerId); break;
     case 'kicked': {
       appToast(isEn() ? "You have been kicked" : "你已被房主踢出房间", "error");
+      try { PokerOnline.leaveRoom(); } catch(e){}   // ★ 加这一行
       G.online.active = false;
       resetSessionState(); resetTableDom(); hideWaitingBar();
       document.body.classList.remove('game-active');
@@ -1911,6 +1913,7 @@ function handleOnlineMessage(msg){
       const ids = Object.keys(players);
       if(ids.length === 0){
         appToast(isEn() ? "Room closed" : "房间已关闭", "error");
+        try { PokerOnline.leaveRoom(); } catch(e){}   // ★ 加这一行
         G.online.active = false;
         resetSessionState(); resetTableDom(); hideWaitingBar();
         document.body.classList.remove('game-active');
